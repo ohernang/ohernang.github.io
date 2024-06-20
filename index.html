@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostMessage Sender</title>
+</head>
+<body>
+  <h1>PostMessage Sender</h1>
+  <script>
+    const allowedOrigins = ['http://localhost'];
+    const message = "Hello World!";
+    const interval = 5000;
+
+    function sendMessage() {
+      allowedOrigins.forEach(origin => {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = origin;
+
+        iframe.onload = function() {
+          iframe.contentWindow.postMessage(message, origin);
+          console.log(`Message sent to ${origin}: ${message}`);
+        };
+
+        document.body.appendChild(iframe);
+
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      });
+    }
+
+    setInterval(sendMessage, interval);
+
+    sendMessage();
+  </script>
+</body>
+</html>
