@@ -7,32 +7,34 @@
 </head>
 <body>
   <script>
-    const allowedOrigins = ['http://localhost'];
     const message = "Hello World!";
-    const interval = 5000;
+    const interval = 5000; // Intervalo de 5 segundos para el envío de mensajes
 
     function sendMessage() {
-      allowedOrigins.forEach(origin => {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = origin;
+      // Solo enviar mensaje si estamos dentro de un iframe
+      console.log("sendMessage");
+      if (window.self !== window.top) {
+        // Obtenemos el origen desde el cual se sirvió la página
+        // Usamos 'document.referrer' para obtener la URL de referencia si el documento actual se cargó en un iframe
+        console.log("document.referrer "+ document.referrer);
+        const parentOrigin = new URL(document.referrer).origin;
 
-        iframe.onload = function() {
-          iframe.contentWindow.postMessage(message, origin);
-          console.log(`Message sent to ${origin}: ${message}`);
-        };
-
-        document.body.appendChild(iframe);
-
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-        }, 1000);
-      });
+        // Verificar si estamos en un ambiente controlado (localhost) y actuar solo en ese caso
+        if (parentOrigin.includes("localhost")) {
+          window.parent.postMessage(message, parentOrigin); // Enviar el mensaje al origen del contenedor
+          console.log(`Message sent to ${parentOrigin}: ${message}`);
+        } else {
+          console.log(`Not allowed to send message to ${parentOrigin}`);
+        }
+      } else {
+        console.log('This page is not being run in an iframe or does not have a parent.');
+      }
     }
 
+    // Configurar el envío de mensajes en un intervalo
     setInterval(sendMessage, interval);
-
-    sendMessage();
+    // También enviar un mensaje tan pronto como la página cargue y esté lista
+    window.addEventListener('DOMContentLoaded', sendMessage);
   </script>
 </body>
 </html>
