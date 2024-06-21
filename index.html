@@ -21,7 +21,7 @@
         console.log("document.referrer es " + document.referrer);
         if (referrerOrigin.includes("localhost")) {
           targetOrigin = referrerOrigin;
-          console.log(`Enviando mensaje a localhost: ${referrerOrigin}`);
+          console.log(`Send message to Localhost: ${referrerOrigin}`);
         }
       }
       window.parent.postMessage(message, targetOrigin);
