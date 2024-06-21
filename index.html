@@ -6,39 +6,30 @@
   <title>PostMessage Sender</title>
 </head>
 <body>
+  PostMessage
   <script>
-    const message = "Hello World!";
-    const interval = 5000; // Intervalo de 5 segundos para el envío de mensajes
+    const message = { text: "Hello World!" };
+    const interval = 5000;
 
     function sendMessage() {
       console.log("Intentando enviar mensaje");
 
-      // Determinar el origen desde el cual se cargó la página
-      let parentOrigin = '*'; // Cambiar esto según tus necesidades de seguridad
+      let targetOrigin = '*';
 
       if (document.referrer) {
-        parentOrigin = new URL(document.referrer).origin;
+        const referrerOrigin = new URL(document.referrer).origin;
         console.log("document.referrer es " + document.referrer);
-      } else {
-        console.log("No document.referrer disponible, usando '*' como origen");
+        if (referrerOrigin.includes("localhost")) {
+          targetOrigin = referrerOrigin;
+          console.log(`Enviando mensaje a localhost: ${referrerOrigin}`);
+        }
       }
-
-      // Solo enviar mensaje si estamos dentro de un iframe
-      if (window.self !== window.top) {
-        console.log("La página está en un iframe, enviando mensaje...");
-        window.parent.postMessage(message, parentOrigin); // Enviar el mensaje al origen del contenedor
-        console.log(`Mensaje enviado a ${parentOrigin}: ${message}`);
-      } else {
-        console.log('Esta página no se está ejecutando en un iframe o no tiene un contenedor.');
-      }
+      window.parent.postMessage(message, targetOrigin);
+      console.log(`Message sent a ${targetOrigin}: ${JSON.stringify(message)}`);
     }
 
-    // Configurar el envío de mensajes en un intervalo
     setInterval(sendMessage, interval);
-
-    // También enviar un mensaje tan pronto como la página cargue y esté lista
     window.addEventListener('DOMContentLoaded', sendMessage);
   </script>
 </body>
 </html>
-
