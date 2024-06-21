@@ -11,30 +11,34 @@
     const interval = 5000; // Intervalo de 5 segundos para el envío de mensajes
 
     function sendMessage() {
-      // Solo enviar mensaje si estamos dentro de un iframe
-      console.log("sendMessage");
-      if (window.self !== window.top) {
-        // Obtenemos el origen desde el cual se sirvió la página
-        // Usamos 'document.referrer' para obtener la URL de referencia si el documento actual se cargó en un iframe
-        console.log("document.referrer "+ document.referrer);
-        const parentOrigin = new URL(document.referrer).origin;
+      console.log("Intentando enviar mensaje");
 
-        // Verificar si estamos en un ambiente controlado (localhost) y actuar solo en ese caso
-        if (parentOrigin.includes("localhost")) {
-          window.parent.postMessage(message, parentOrigin); // Enviar el mensaje al origen del contenedor
-          console.log(`Message sent to ${parentOrigin}: ${message}`);
-        } else {
-          console.log(`Not allowed to send message to ${parentOrigin}`);
-        }
+      // Determinar el origen desde el cual se cargó la página
+      let parentOrigin = '*'; // Cambiar esto según tus necesidades de seguridad
+
+      if (document.referrer) {
+        parentOrigin = new URL(document.referrer).origin;
+        console.log("document.referrer es " + document.referrer);
       } else {
-        console.log('This page is not being run in an iframe or does not have a parent.');
+        console.log("No document.referrer disponible, usando '*' como origen");
+      }
+
+      // Solo enviar mensaje si estamos dentro de un iframe
+      if (window.self !== window.top) {
+        console.log("La página está en un iframe, enviando mensaje...");
+        window.parent.postMessage(message, parentOrigin); // Enviar el mensaje al origen del contenedor
+        console.log(`Mensaje enviado a ${parentOrigin}: ${message}`);
+      } else {
+        console.log('Esta página no se está ejecutando en un iframe o no tiene un contenedor.');
       }
     }
 
     // Configurar el envío de mensajes en un intervalo
     setInterval(sendMessage, interval);
+
     // También enviar un mensaje tan pronto como la página cargue y esté lista
     window.addEventListener('DOMContentLoaded', sendMessage);
   </script>
 </body>
 </html>
+
